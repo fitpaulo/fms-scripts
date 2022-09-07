@@ -2,114 +2,31 @@ import PyPDF2
 from PyPDF2.generic import NameObject
 import pandas as pd
 import numpy as np
+import yaml
 import datetime
 import os
 
 
-###########################################
-#               EDIT THESE                #
-###########################################
-COMPANY_PATH = "I\\I.E.S KENTUCKY, LLC\\ERC"
-COPANY_TYPE = "LA"
-WS_NAME = "IES KENTUCKY ERTC Worksheet"  # WS = Worksheet
-SKIP_8821 = False
+with open('config.yaml', 'r') as file:
+    conf = yaml.safe_load(file)
 
-# Comment out lines you don't want to make f941xs for
-YEAR_QUARTER = [
-    [2020, 2],
-    [2020, 3],
-    [2020, 4],
-    [2021, 1],
-    [2021, 2],
-    [2021, 3],
-]
-##########################################
-#            STOP EDITING                #
-##########################################
+# From yaml
+COMPANY_PATH = conf["path"]
+COPANY_TYPE = conf["type"]
+WS_NAME = conf['ws']
+SKIP_8821 = conf['skip']
+YEAR_QUARTER = conf['year_quarter']
+DROPBOX_PATH = conf['dropbox_path']
+PDF_DICT = conf['pdf_dict']
 
-BASE_PATH = f"C:\\Users\\dguim\\FMS Dropbox\\COMPANIES {COPANY_TYPE}"
+# Dynamic vars
+BASE_PATH = f"{DROPBOX_PATH}\\COMPANIES {COPANY_TYPE}"
 PDF_PATH = f"{BASE_PATH}\\PAT {COPANY_TYPE} ERTC"
 F941X_PATH = f"{PDF_PATH}\\f941x 8-9-22.pdf"
 F8821_PATH = f"{PDF_PATH}\\f8821 8-9-22.pdf"
 WS_PATH = f"{BASE_PATH}\\{COMPANY_PATH}\\Payroll And Worksheet\\{WS_NAME}.xlsx"
 OUTPUT_PATH = f"{BASE_PATH}\\{COMPANY_PATH}\\941x"
 NEWLINE = os.linesep
-
-
-PDF_DICT = {
-    "p1": {
-        "ein1": "f1_01[0]",
-        "ein2": "f1_02[0]",
-        "name": "f1_03[0]",
-        "trade name": "f1_04[0]",
-        "address": "f1_05[0]",
-        "city": "f1_06[0]",
-        "state": "f1_07[0]",
-        "zip": "f1_08[0]",
-        "year correcting": "f1_12[0]",
-        "mm": "f1_13[0]",
-        "dd": "f1_14[0]",
-        "yyyy": "f1_15[0]",
-    },
-    "p2": {
-        "name": "f2_01[0]",
-        "ein": "f2_02[0]",
-        "quarter": "f2_03[0]",
-        "year": "f2_04[0]",
-    },
-    "p3": {
-        "name": "f3_01[0]",
-        "ein": "f3_02[0]",
-        "quarter": "f3_03[0]",
-        "year": "f3_04[0]",
-    },
-    "p4": {
-        "name": "f4_01[0]",
-        "ein": "f4_02[0]",
-        "quarter": "f4_03[0]",
-        "year": "f4_04[0]",
-    },
-    "p5": {
-        "name": "f5_01[0]",
-        "ein": "f5_02[0]",
-        "quarter": "f5_03[0]",
-        "year": "f5_04[0]",
-    },
-    "tax": {
-        "18a_dollars": [
-            "f2_99[0]",
-            "f2_103[0]",
-            "f2_105[0]",  # negative dollars
-        ],
-        "18a_cents": [
-            "f2_100[0]",
-            "f2_104[0]",
-            "f2_106[0]",
-        ],
-        "23_dollars": "f3_139[0]",  # negative
-        "23_cents": "f3_140[0]",
-        "26a_dollars": [
-            "f3_157[0]",
-            "f3_161[0]",
-            "f3_163[0]",  # negative dollars
-        ],
-        "26a_cents": [
-            "f3_158[0]",
-            "f3_162[0]",
-            "f3_164[0]",
-        ],
-        "27_dollars": "f3_181[0]",  # negative
-        "27_cents": "f3_182[0]",
-        "30_dollars": [
-            "f3_195[0]",
-            "f3_199[0]",
-        ],
-        "30_cents": [
-            "f3_196[0]",
-            "f3_200[0]",
-        ],
-    },
-}
 
 
 def print_non_empty_fields(pdf: PyPDF2.PdfFileReader):

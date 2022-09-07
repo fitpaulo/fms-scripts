@@ -1,0 +1,73 @@
+path: c\company
+type: type
+ws: ws name
+skip: False
+year_quarter:
+  - [2020, 2]
+  - [2020, 3]
+  - [2020, 4]
+  - [2021, 1]
+  - [2021, 2]
+  - [2021, 3]
+dropbox_path: path\to\dropbox
+pdf_dict:
+  p1:
+    ein1: 'f1_01[0]'
+    ein2: 'f1_02[0]'
+    name: 'f1_03[0]'
+    trade name: 'f1_04[0]'
+    address: 'f1_05[0]'
+    city: 'f1_06[0]'
+    state: 'f1_07[0]'
+    zip: 'f1_08[0]'
+    year correcting: 'f1_12[0]'
+    mm: 'f1_13[0]'
+    dd: 'f1_14[0]'
+    yyyy: 'f1_15[0]'
+  p2:
+    name: 'f2_01[0]'
+    ein: 'f2_02[0]'
+    quarter: 'f2_03[0]'
+    year: 'f2_04[0]'
+  p3:
+    name: 'f3_01[0]'
+    ein: 'f3_02[0]'
+    quarter: 'f3_03[0]'
+    year: 'f3_04[0]'
+  p4:
+    name: 'f4_01[0]'
+    ein: 'f4_02[0]'
+    quarter: 'f4_03[0]'
+    year: 'f4_04[0]'
+  p5:
+    name: 'f5_01[0]'
+    ein: 'f5_02[0]'
+    quarter: 'f5_03[0]'
+    year: 'f5_04[0]'
+  tax:
+    18a_dollars:
+      - 'f2_99[0]'
+      - 'f2_103[0]'
+      - 'f2_105[0]'
+    18a_cents:
+      - 'f2_100[0]'
+      - 'f2_104[0]'
+      - 'f2_106[0]'
+    23_dollars: 'f3_139[0]'
+    23_cents: 'f3_140[0]'
+    26a_dollars:
+      - 'f3_157[0]'
+      - 'f3_161[0]'
+      - 'f3_163[0]'
+    26a_cents:
+      - 'f3_158[0]'
+      - 'f3_162[0]'
+      - 'f3_164[0]'
+    27_dollars: 'f3_181[0]'
+    27_cents: 'f3_182[0]'
+    30_dollars:
+      - 'f3_195[0]'
+      - 'f3_199[0]'
+    30_cents:
+      - 'f3_196[0]'
+      - 'f3_200[0]'

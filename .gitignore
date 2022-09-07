@@ -131,3 +131,4 @@ dmypy.json
 # Misc Files
 *.xlsx
 *.pdf
+config.yaml

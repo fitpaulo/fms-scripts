@@ -81,11 +81,19 @@ def extract_company_data(df: pd.DataFrame):
 def extract_tax_data(df: pd.DataFrame, row: int) -> dict:
     #  Note, rounding to 3 here to make round equal that in excel
     return {
-        "18a": np.round(df.iloc[row, 3], decimals=3),
-        "26a": np.round(df.iloc[row + 2, 3], decimals=3),
-        "27": np.round(df.iloc[row + 4, 3], decimals=3),
-        "30": np.round(df.iloc[row + 6, 3], decimals=3),
+        "18a": excel_round(df.iloc[row, 3]),
+        "26a": excel_round(df.iloc[row + 2, 3]),
+        "27": excel_round(df.iloc[row + 4, 3]),
+        "30": excel_round(df.iloc[row + 6, 3]),
     }
+
+
+# This seem the most accurate the most of the time
+def excel_round(num):
+    num = np.round(num, 3)
+    if np.floor(num * 1000) % 5 == 0:
+        return round(num + .003, 2)
+    return round(num, 2)
 
 
 def add_commas_to_dollars(num: int):
@@ -103,7 +111,6 @@ def add_commas_to_dollars(num: int):
 def extract_dollars_and_cents(num: np.float64) -> list:
     if int(np.round(num)) == 0:
         return ["", ""]
-    num = np.round(num, decimals=2)
     dollars = int(np.floor(num))
     # dollars = add_commas_to_dollars(dollars)
     cents = str(num)[-2:]  # Don't forget the colon

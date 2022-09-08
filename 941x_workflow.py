@@ -21,6 +21,7 @@ YEAR_QUARTER = conf['year_quarter']
 DROPBOX_PATH = conf['dropbox_path']
 PDF_DICT = pdf_conf['pdf_dict']
 PAYROLL_DIR = conf['payroll_dir']
+QUARTER_FIELDS = pdf_conf['quarter_fields']
 
 # Dynamic vars
 BASE_PATH = f"{DROPBOX_PATH}\\COMPANIES {COPANY_TYPE}"
@@ -40,10 +41,9 @@ def print_non_empty_fields(pdf: PyPDF2.PdfFileReader):
 
 
 def update_quater_check_box(page: PyPDF2._page.PageObject, value: int):
-    quarter_fields = {1: "c1_02[0]", 2: "c1_02[1]", 3: "c1_02[2]", 4: "c1_02[3]"}
     for i in range(0, len(page["/Annots"])):
         annot = page["/Annots"][i].getObject()
-        for k, field in quarter_fields.items():
+        for k, field in QUARTER_FIELDS.items():
             if annot.get("/T") == field:
                 as_value = "/Off"
                 if k == value:

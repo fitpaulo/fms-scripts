@@ -18,13 +18,14 @@ SKIP_8821 = conf['skip']
 YEAR_QUARTER = conf['year_quarter']
 DROPBOX_PATH = conf['dropbox_path']
 PDF_DICT = conf['pdf_dict']
+PAYROLL_DIR = conf['payroll_dir']
 
 # Dynamic vars
 BASE_PATH = f"{DROPBOX_PATH}\\COMPANIES {COPANY_TYPE}"
 PDF_PATH = f"{BASE_PATH}\\PAT {COPANY_TYPE} ERTC"
 F941X_PATH = f"{PDF_PATH}\\f941x 8-9-22.pdf"
 F8821_PATH = f"{PDF_PATH}\\f8821 8-9-22.pdf"
-WS_PATH = f"{BASE_PATH}\\{COMPANY_PATH}\\Payroll And Worksheet\\{WS_NAME}.xlsx"
+WS_PATH = f"{BASE_PATH}\\{COMPANY_PATH}\\{PAYROLL_DIR}\\{WS_NAME}.xlsx"
 OUTPUT_PATH = f"{BASE_PATH}\\{COMPANY_PATH}\\941x"
 NEWLINE = os.linesep
 

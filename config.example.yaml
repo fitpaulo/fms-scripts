@@ -2,6 +2,7 @@ path: c\company
 type: type
 ws: ws name
 skip: False
+# skip: True
 year_quarter:
   - [2020, 2]
   - [2020, 3]
@@ -10,6 +11,8 @@ year_quarter:
   - [2021, 2]
   - [2021, 3]
 dropbox_path: path\to\dropbox
+# payroll_dir: "Payroll & Worksheet"
+payroll_dir: "Payroll And Worksheet"
 pdf_dict:
   p1:
     ein1: 'f1_01[0]'

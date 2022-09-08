@@ -1,15 +1,13 @@
-path: c\company
-type: type
-ws: ws name
-skip: False
-# skip: True
-year_quarter:
+path: c\company\ERTC  # Sometimes there is no ERTC dir
+type: type   # Company type (LA|TSP)
+ws: ws name  # The worksheet name sans extension
+skip: False  # Skip creating the 8821
+payroll_dir: "Payroll And Worksheet"  # Some people use an &
+year_quarter:  # Comment out any line and you will skip creating that 941
   - [2020, 2]
   - [2020, 3]
   - [2020, 4]
   - [2021, 1]
   - [2021, 2]
   - [2021, 3]
-dropbox_path: path\to\dropbox
-# payroll_dir: "Payroll & Worksheet"
-payroll_dir: "Payroll And Worksheet"
+dropbox_path: C:\Users\<user>\FMS Dropbox

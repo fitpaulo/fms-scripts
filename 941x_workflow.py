@@ -9,6 +9,8 @@ import os
 
 with open('config.yaml', 'r') as file:
     conf = yaml.safe_load(file)
+with open('f941x.yaml', 'r') as file:
+    pdf_conf = yaml.safe_load(file)
 
 # From yaml
 COMPANY_PATH = conf["path"]
@@ -17,7 +19,7 @@ WS_NAME = conf['ws']
 SKIP_8821 = conf['skip']
 YEAR_QUARTER = conf['year_quarter']
 DROPBOX_PATH = conf['dropbox_path']
-PDF_DICT = conf['pdf_dict']
+PDF_DICT = pdf_conf['pdf_dict']
 PAYROLL_DIR = conf['payroll_dir']
 
 # Dynamic vars

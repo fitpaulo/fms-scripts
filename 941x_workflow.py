@@ -22,6 +22,7 @@ DROPBOX_PATH = conf['dropbox_path']
 PDF_DICT = pdf_conf['pdf_dict']
 PAYROLL_DIR = conf['payroll_dir']
 QUARTER_FIELDS = pdf_conf['quarter_fields']
+SHEETS = conf["excel_sheet_names"]
 
 # Dynamic vars
 BASE_PATH = f"{DROPBOX_PATH}\\COMPANIES {COPANY_TYPE}"
@@ -243,13 +244,13 @@ if __name__ == "__main__":
     pdf_writer = PyPDF2.PdfFileWriter()
     excel_wb = pd.ExcelFile(WS_PATH)
     data = {
-        "company": extract_company_data(excel_wb.parse(sheet_name="Data Input")),
-        "q2_2020": extract_tax_data(excel_wb.parse(sheet_name="2020 Q2 941 Calc"), 46),
-        "q3_2020": extract_tax_data(excel_wb.parse(sheet_name="2020 Q3 941 Calc"), 46),
-        "q4_2020": extract_tax_data(excel_wb.parse(sheet_name="2020 Q4 941 Calc"), 46),
-        "q1_2021": extract_tax_data(excel_wb.parse(sheet_name="2021 Q1 941 Calc"), 47),
-        "q2_2021": extract_tax_data(excel_wb.parse(sheet_name="2021 Q2 941 Calc"), 47),
-        "q3_2021": extract_tax_data(excel_wb.parse(sheet_name="2021 Q3 941 Calc"), 47),
+        "company": extract_company_data(excel_wb.parse(sheet_name=SHEETS["input"])),
+        "q2_2020": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2020Q2"]), 46),
+        "q3_2020": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2020Q3"]), 46),
+        "q4_2020": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2020Q4"]), 46),
+        "q1_2021": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q1"]), 47),
+        "q2_2021": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q2"]), 47),
+        "q3_2021": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q3"]), 47),
     }
     make_941x_dir()
     write_f8821(data["company"])

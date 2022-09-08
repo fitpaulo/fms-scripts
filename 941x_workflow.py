@@ -229,6 +229,13 @@ def write_f8821(data: dict):
     writer.write(output_file)
 
 
+def make_941x_dir():
+    try:
+        os.mkdir(OUTPUT_PATH)
+    except FileExistsError:
+        return  # Already exists, do nothing
+
+
 if __name__ == "__main__":
     pdf_reader = PyPDF2.PdfFileReader(F941X_PATH)
     pdf_writer = PyPDF2.PdfFileWriter()
@@ -242,6 +249,7 @@ if __name__ == "__main__":
         "q2_2021": extract_tax_data(excel_wb.parse(sheet_name="2021 Q2 941 Calc"), 47),
         "q3_2021": extract_tax_data(excel_wb.parse(sheet_name="2021 Q3 941 Calc"), 47),
     }
+    make_941x_dir()
     write_f8821(data["company"])
     for i in range(0, 6):
         pdf_writer.add_page(pdf_reader.pages[i])

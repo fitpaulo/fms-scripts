@@ -159,3 +159,22 @@ def write_f8821(data: dict, f8821_path: str, write_path, skip=False):
     filename = f"{data['name']} f8821.pdf"
     output_file = f"{write_path}\\{filename}"
     writer.write(output_file)
+
+
+def make_941x_dir(dir_path: str):
+    try:
+        os.mkdir(dir_path)
+    except FileExistsError:
+        return  # Already exists, do nothing
+
+
+def create_pdf_reader(reader_path: str):
+    return PyPDF2.PdfFileReader(reader_path)
+
+
+def create_pdf_writer():
+    return PyPDF2.PdfFileWriter()
+
+
+def write_pdf_file(pdf: PyPDF2.PdfFileWriter, file_path: str):
+    pdf.write(file_path)

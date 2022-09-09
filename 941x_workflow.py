@@ -1,7 +1,4 @@
-import PyPDF2
-import pandas as pd
 import yaml
-import os
 import src.pdf_ops as pdf_ops
 import src.excel_ops as excel_ops
 
@@ -30,15 +27,8 @@ BASE_PATH = f"{DROPBOX_PATH}\\COMPANIES {COPANY_TYPE}"
 PDF_PATH = f"{BASE_PATH}\\PAT {COPANY_TYPE} ERTC"
 F941X_PATH = f"{PDF_PATH}\\f941x 8-9-22.pdf"
 F8821_PATH = f"{PDF_PATH}\\f8821 8-9-22.pdf"
-WS_PATH = f"{BASE_PATH}\\{COMPANY_PATH}\\{PAYROLL_DIR}\\{WS_NAME}.xlsx"
+WB_PATH = f"{BASE_PATH}\\{COMPANY_PATH}\\{PAYROLL_DIR}\\{WS_NAME}.xlsx"
 OUTPUT_PATH = f"{BASE_PATH}\\{COMPANY_PATH}\\941x"
-
-
-def make_941x_dir():
-    try:
-        os.mkdir(OUTPUT_PATH)
-    except FileExistsError:
-        return  # Already exists, do nothing
 
 
 def fix_zip(data):
@@ -48,32 +38,12 @@ def fix_zip(data):
 
 
 if __name__ == "__main__":
-    pdf_reader = PyPDF2.PdfFileReader(F941X_PATH)
-    pdf_writer = PyPDF2.PdfFileWriter()
-    excel_wb = pd.ExcelFile(WS_PATH)
-    data = {
-        "company": excel_ops.extract_company_data(excel_wb.parse(sheet_name=SHEETS["input"])),
-        "2020_q2": excel_ops.extract_tax_data(
-            excel_wb.parse(sheet_name=SHEETS["2020Q2"]), ROW_2020, ROUNND_DELTA
-        ),
-        "2020_q3": excel_ops.extract_tax_data(
-            excel_wb.parse(sheet_name=SHEETS["2020Q3"]), ROW_2020, ROUNND_DELTA
-        ),
-        "2020_q4": excel_ops.extract_tax_data(
-            excel_wb.parse(sheet_name=SHEETS["2020Q4"]), ROW_2020, ROUNND_DELTA
-        ),
-        "2021_q1": excel_ops.extract_tax_data(
-            excel_wb.parse(sheet_name=SHEETS["2021Q1"]), ROW_2021, ROUNND_DELTA
-        ),
-        "2021_q2": excel_ops.extract_tax_data(
-            excel_wb.parse(sheet_name=SHEETS["2021Q2"]), ROW_2021, ROUNND_DELTA
-        ),
-        "2021_q3": excel_ops.extract_tax_data(
-            excel_wb.parse(sheet_name=SHEETS["2021Q3"]), ROW_2021, ROUNND_DELTA
-        ),
-    }
+    pdf_reader = pdf_ops.create_pdf_reader(F941X_PATH)
+    pdf_writer = pdf_ops.create_pdf_writer()
+    wb = excel_ops.load_wb(WB_PATH)
+    data = excel_ops.load_data(wb, SHEETS, ROW_2020, ROW_2021, ROUNND_DELTA)
     fix_zip(data)
-    make_941x_dir()
+    pdf_ops.make_941x_dir()
     pdf_ops.write_f8821(data["company"], F8821_PATH, OUTPUT_PATH, SKIP_8821)
     for i in range(0, 6):
         pdf_writer.add_page(pdf_reader.pages[i])
@@ -82,4 +52,4 @@ if __name__ == "__main__":
         pdf_ops.update_quater_check_box(pdf_writer.pages[0], quarter, QUARTER_FIELDS)
         filename = f"{data['company']['name']} f941x {year} Q{quarter}.pdf"
         output_file = f"{OUTPUT_PATH}\\{filename}"
-        pdf_writer.write(output_file)
+        pdf_ops.write(pdf_writer, output_file)

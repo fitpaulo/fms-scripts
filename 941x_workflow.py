@@ -23,6 +23,9 @@ PDF_DICT = pdf_conf["pdf_dict"]
 PAYROLL_DIR = conf["payroll_dir"]
 QUARTER_FIELDS = pdf_conf["quarter_fields"]
 SHEETS = conf["excel_sheet_names"]
+ROUNND_DELTA = conf["round_delta"]
+ROW_2020 = conf["row_2020"]
+ROW_2021 = conf["row_2021"]
 
 # Dynamic vars
 BASE_PATH = f"{DROPBOX_PATH}\\COMPANIES {COPANY_TYPE}"
@@ -96,7 +99,7 @@ def extract_tax_data(df: pd.DataFrame, row: int) -> dict:
 def excel_round(num):
     num = np.round(num, 3)
     if np.floor(num * 1000) % 5 == 0:
-        return round(num + 0.003, 2)
+        return round(num + ROUNND_DELTA, 2)
     return round(num, 2)
 
 
@@ -126,13 +129,13 @@ def extract_dollars_and_cents(num: np.float64) -> list:
 def write_pdf_data(pdf: PyPDF2.PdfFileWriter, data: dict, year: int, quarter: int):
     d = datetime.date.today()
     dollars_18a, cents_18a = extract_dollars_and_cents(
-        data[f"q{quarter}_{year}"]["18a"]
+        data[f"{year}_q{quarter}"]["18a"]
     )
     dollars_26a, cents_26a = extract_dollars_and_cents(
-        data[f"q{quarter}_{year}"]["26a"]
+        data[f"{year}_q{quarter}"]["26a"]
     )
-    dollars_27, cents_27 = extract_dollars_and_cents(data[f"q{quarter}_{year}"]["27"])
-    dollars_30, cents_30 = extract_dollars_and_cents(data[f"q{quarter}_{year}"]["30"])
+    dollars_27, cents_27 = extract_dollars_and_cents(data[f"{year}_q{quarter}"]["27"])
+    dollars_30, cents_30 = extract_dollars_and_cents(data[f"{year}_q{quarter}"]["30"])
     pdf_writer.update_page_form_field_values(
         pdf_writer.pages[0],
         {
@@ -251,12 +254,24 @@ if __name__ == "__main__":
     excel_wb = pd.ExcelFile(WS_PATH)
     data = {
         "company": extract_company_data(excel_wb.parse(sheet_name=SHEETS["input"])),
-        "q2_2020": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2020Q2"]), 46),
-        "q3_2020": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2020Q3"]), 46),
-        "q4_2020": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2020Q4"]), 46),
-        "q1_2021": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q1"]), 47),
-        "q2_2021": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q2"]), 47),
-        "q3_2021": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q3"]), 47),
+        "2020_q2": extract_tax_data(
+            excel_wb.parse(sheet_name=SHEETS["2020Q2"]), ROW_2020
+        ),
+        "2020_q3": extract_tax_data(
+            excel_wb.parse(sheet_name=SHEETS["2020Q3"]), ROW_2020
+        ),
+        "2020_q4": extract_tax_data(
+            excel_wb.parse(sheet_name=SHEETS["2020Q4"]), ROW_2020
+        ),
+        "2021_q1": extract_tax_data(
+            excel_wb.parse(sheet_name=SHEETS["2021Q1"]), ROW_2021
+        ),
+        "2021_q2": extract_tax_data(
+            excel_wb.parse(sheet_name=SHEETS["2021Q2"]), ROW_2021
+        ),
+        "2021_q3": extract_tax_data(
+            excel_wb.parse(sheet_name=SHEETS["2021Q3"]), ROW_2021
+        ),
     }
     fix_zip(data)
     make_941x_dir()

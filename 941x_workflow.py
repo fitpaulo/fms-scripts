@@ -7,21 +7,21 @@ import datetime
 import os
 
 
-with open('config.yaml', 'r') as file:
+with open("config.yaml", "r") as file:
     conf = yaml.safe_load(file)
-with open('f941x.yaml', 'r') as file:
+with open("f941x.yaml", "r") as file:
     pdf_conf = yaml.safe_load(file)
 
 # From yaml
 COMPANY_PATH = conf["path"]
 COPANY_TYPE = conf["type"]
-WS_NAME = conf['ws']
-SKIP_8821 = conf['skip']
-YEAR_QUARTER = conf['year_quarter']
-DROPBOX_PATH = conf['dropbox_path']
-PDF_DICT = pdf_conf['pdf_dict']
-PAYROLL_DIR = conf['payroll_dir']
-QUARTER_FIELDS = pdf_conf['quarter_fields']
+WS_NAME = conf["ws"]
+SKIP_8821 = conf["skip"]
+YEAR_QUARTER = conf["year_quarter"]
+DROPBOX_PATH = conf["dropbox_path"]
+PDF_DICT = pdf_conf["pdf_dict"]
+PAYROLL_DIR = conf["payroll_dir"]
+QUARTER_FIELDS = pdf_conf["quarter_fields"]
 SHEETS = conf["excel_sheet_names"]
 
 # Dynamic vars
@@ -62,9 +62,9 @@ def get_page_object_data(page: PyPDF2._page.PageObject):
     for i in range(0, len(page["/Annots"])):
         tmp = page["/Annots"][i].get_object()
         if "c1_" in tmp.get("/T"):
-            from pprint import pprint as pp
-
-            pp(tmp)
+            # from pprint import pprint as pp
+            # pp(tmp)
+            pass
 
 
 def extract_company_data(df: pd.DataFrame):
@@ -96,7 +96,7 @@ def extract_tax_data(df: pd.DataFrame, row: int) -> dict:
 def excel_round(num):
     num = np.round(num, 3)
     if np.floor(num * 1000) % 5 == 0:
-        return round(num + .003, 2)
+        return round(num + 0.003, 2)
     return round(num, 2)
 
 
@@ -105,8 +105,8 @@ def add_commas_to_dollars(num: int):
     out = []
     current = str(num)
     while len(current) > step:
-        out.append(current[-1 * step:])
-        current = current[:len(current) - step]
+        out.append(current[-1 * step :])
+        current = current[: len(current) - step]
     out.append(current)
     out.reverse()
     return ",".join(out)

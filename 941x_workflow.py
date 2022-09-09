@@ -18,7 +18,7 @@ PDF_DICT = pdf_conf["pdf_dict"]
 PAYROLL_DIR = conf["payroll_dir"]
 QUARTER_FIELDS = pdf_conf["quarter_fields"]
 SHEETS = conf["excel_sheet_names"]
-ROUNND_DELTA = conf["round_delta"]
+ROUND_DELTA = conf["round_delta"]
 ROW_2020 = conf["row_2020"]
 ROW_2021 = conf["row_2021"]
 
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     pdf_reader = pdf_ops.create_pdf_reader(F941X_PATH)
     pdf_writer = pdf_ops.create_pdf_writer()
     wb = excel_ops.load_wb(WB_PATH)
-    data = excel_ops.load_data(wb, SHEETS, ROW_2020, ROW_2021, ROUNND_DELTA)
+    data = excel_ops.load_data(wb, SHEETS, ROW_2020, ROW_2021, ROUND_DELTA)
     fix_zip(data)
     pdf_ops.make_941x_dir()
     pdf_ops.write_f8821(data["company"], F8821_PATH, OUTPUT_PATH, SKIP_8821)

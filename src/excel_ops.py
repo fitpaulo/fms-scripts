@@ -2,6 +2,10 @@ import pandas as pd
 import numpy as np
 
 
+def load_wb(wb_path: str):
+    return pd.ExcelFile(wb_path)
+
+
 def extract_company_data(df: pd.DataFrame):
     return {
         "ein": df.iloc[0, 0],
@@ -55,3 +59,27 @@ def extract_dollars_and_cents(num: np.float63) -> list:
     if cents[-1] == ".":
         cents = f"{cents[0]}0"
     return [dollars, cents]
+
+
+def load_data(wb: pd.ExcelFile, sheets: dict, row_2020: int, row_2021: int, round_delta: float):
+    return {
+        "company": extract_company_data(wb.parse(sheet_name=sheets["input"])),
+        "2020_q2": extract_tax_data(
+            wb.parse(sheet_name=sheets["2020Q2"]), row_2020, round_delta
+        ),
+        "2020_q3": extract_tax_data(
+            wb.parse(sheet_name=sheets["2020Q3"]), row_2020, round_delta
+        ),
+        "2020_q4": extract_tax_data(
+            wb.parse(sheet_name=sheets["2020Q4"]), row_2020, round_delta
+        ),
+        "2021_q1": extract_tax_data(
+            wb.parse(sheet_name=sheets["2021Q1"]), row_2021, round_delta
+        ),
+        "2021_q2": extract_tax_data(
+            wb.parse(sheet_name=sheets["2021Q2"]), row_2021, round_delta
+        ),
+        "2021_q3": extract_tax_data(
+            wb.parse(sheet_name=sheets["2021Q3"]), row_2021, round_delta
+        ),
+    }

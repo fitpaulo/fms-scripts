@@ -7,9 +7,9 @@ import datetime
 import os
 
 
-with open("config.yaml", "r") as file:
+with open("conf/config.yaml", "r") as file:
     conf = yaml.safe_load(file)
-with open("f941x.yaml", "r") as file:
+with open("conf/f941x.yaml", "r") as file:
     pdf_conf = yaml.safe_load(file)
 
 # From yaml
@@ -78,7 +78,7 @@ def extract_company_data(df: pd.DataFrame):
         "state": df.iloc[0, 6],
         "zip": (lambda: int(df.iloc[0, 7]), lambda: df.iloc[0, 7])[
             type(df.iloc[0, 7]) is str
-        ](),
+        ](),  # calling int here gets rid of the decimal .0
     }
 
 
@@ -239,6 +239,12 @@ def make_941x_dir():
         return  # Already exists, do nothing
 
 
+def fix_zip(data):
+    if data["company"]["zip"] is int:
+        if data["company"]["zip"] < 10000:
+            data["company"]["zip"] = f"0{data['company']['zip']}"
+
+
 if __name__ == "__main__":
     pdf_reader = PyPDF2.PdfFileReader(F941X_PATH)
     pdf_writer = PyPDF2.PdfFileWriter()
@@ -252,6 +258,7 @@ if __name__ == "__main__":
         "q2_2021": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q2"]), 47),
         "q3_2021": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q3"]), 47),
     }
+    fix_zip(data)
     make_941x_dir()
     write_f8821(data["company"])
     for i in range(0, 6):

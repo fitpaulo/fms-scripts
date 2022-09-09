@@ -86,7 +86,6 @@ def extract_company_data(df: pd.DataFrame):
 
 
 def extract_tax_data(df: pd.DataFrame, row: int) -> dict:
-    #  Note, rounding to 3 here to make round equal that in excel
     return {
         "18a": excel_round(df.iloc[row, 3]),
         "26a": excel_round(df.iloc[row + 2, 3]),
@@ -95,7 +94,7 @@ def extract_tax_data(df: pd.DataFrame, row: int) -> dict:
     }
 
 
-# This seem the most accurate the most of the time
+# This seems more accurate more of the time
 def excel_round(num):
     num = np.round(num, 3)
     if np.floor(num * 1000) % 5 == 0:

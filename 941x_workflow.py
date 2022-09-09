@@ -23,6 +23,7 @@ PDF_DICT = pdf_conf["pdf_dict"]
 PAYROLL_DIR = conf["payroll_dir"]
 QUARTER_FIELDS = pdf_conf["quarter_fields"]
 SHEETS = conf["excel_sheet_names"]
+ROUNND_DELTA = conf["round_delta"]
 
 # Dynamic vars
 BASE_PATH = f"{DROPBOX_PATH}\\COMPANIES {COPANY_TYPE}"
@@ -96,7 +97,7 @@ def extract_tax_data(df: pd.DataFrame, row: int) -> dict:
 def excel_round(num):
     num = np.round(num, 3)
     if np.floor(num * 1000) % 5 == 0:
-        return round(num + 0.003, 2)
+        return round(num + ROUNND_DELTA, 2)
     return round(num, 2)
 
 

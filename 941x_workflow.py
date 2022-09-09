@@ -126,13 +126,13 @@ def extract_dollars_and_cents(num: np.float64) -> list:
 def write_pdf_data(pdf: PyPDF2.PdfFileWriter, data: dict, year: int, quarter: int):
     d = datetime.date.today()
     dollars_18a, cents_18a = extract_dollars_and_cents(
-        data[f"q{quarter}_{year}"]["18a"]
+        data[f"{year}_q{quarter}"]["18a"]
     )
     dollars_26a, cents_26a = extract_dollars_and_cents(
-        data[f"q{quarter}_{year}"]["26a"]
+        data[f"{year}_q{quarter}"]["26a"]
     )
-    dollars_27, cents_27 = extract_dollars_and_cents(data[f"q{quarter}_{year}"]["27"])
-    dollars_30, cents_30 = extract_dollars_and_cents(data[f"q{quarter}_{year}"]["30"])
+    dollars_27, cents_27 = extract_dollars_and_cents(data[f"{year}_q{quarter}"]["27"])
+    dollars_30, cents_30 = extract_dollars_and_cents(data[f"{year}_q{quarter}"]["30"])
     pdf_writer.update_page_form_field_values(
         pdf_writer.pages[0],
         {
@@ -251,12 +251,12 @@ if __name__ == "__main__":
     excel_wb = pd.ExcelFile(WS_PATH)
     data = {
         "company": extract_company_data(excel_wb.parse(sheet_name=SHEETS["input"])),
-        "q2_2020": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2020Q2"]), 46),
-        "q3_2020": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2020Q3"]), 46),
-        "q4_2020": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2020Q4"]), 46),
-        "q1_2021": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q1"]), 47),
-        "q2_2021": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q2"]), 47),
-        "q3_2021": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q3"]), 47),
+        "2020_q2": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2020Q2"]), 46),
+        "2020_q3": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2020Q3"]), 46),
+        "2020_q4": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2020Q4"]), 46),
+        "2021_q1": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q1"]), 47),
+        "2021_q2": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q2"]), 47),
+        "2021_q3": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q3"]), 47),
     }
     fix_zip(data)
     make_941x_dir()

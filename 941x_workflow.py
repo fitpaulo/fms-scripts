@@ -7,10 +7,9 @@ import datetime
 import os
 
 
-with open("conf\\config.yaml", "r") as file:
+with open("config.yaml", "r") as file:
     conf = yaml.safe_load(file)
-with open("conf\\f941x.yaml", "r") as file:
-    pdf_conf = yaml.safe_load(file)
+with open("f941x.yaml", "r") as file:
 
 # From yaml
 COMPANY_PATH = conf["path"]

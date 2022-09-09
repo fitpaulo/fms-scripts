@@ -24,6 +24,8 @@ PAYROLL_DIR = conf["payroll_dir"]
 QUARTER_FIELDS = pdf_conf["quarter_fields"]
 SHEETS = conf["excel_sheet_names"]
 ROUNND_DELTA = conf["round_delta"]
+ROW_2020 = conf["row_2020"]
+ROW_2021 = conf["row_2021"]
 
 # Dynamic vars
 BASE_PATH = f"{DROPBOX_PATH}\\COMPANIES {COPANY_TYPE}"
@@ -252,12 +254,24 @@ if __name__ == "__main__":
     excel_wb = pd.ExcelFile(WS_PATH)
     data = {
         "company": extract_company_data(excel_wb.parse(sheet_name=SHEETS["input"])),
-        "2020_q2": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2020Q2"]), 46),
-        "2020_q3": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2020Q3"]), 46),
-        "2020_q4": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2020Q4"]), 46),
-        "2021_q1": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q1"]), 47),
-        "2021_q2": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q2"]), 47),
-        "2021_q3": extract_tax_data(excel_wb.parse(sheet_name=SHEETS["2021Q3"]), 47),
+        "2020_q2": extract_tax_data(
+            excel_wb.parse(sheet_name=SHEETS["2020Q2"]), ROW_2020
+        ),
+        "2020_q3": extract_tax_data(
+            excel_wb.parse(sheet_name=SHEETS["2020Q3"]), ROW_2020
+        ),
+        "2020_q4": extract_tax_data(
+            excel_wb.parse(sheet_name=SHEETS["2020Q4"]), ROW_2020
+        ),
+        "2021_q1": extract_tax_data(
+            excel_wb.parse(sheet_name=SHEETS["2021Q1"]), ROW_2021
+        ),
+        "2021_q2": extract_tax_data(
+            excel_wb.parse(sheet_name=SHEETS["2021Q2"]), ROW_2021
+        ),
+        "2021_q3": extract_tax_data(
+            excel_wb.parse(sheet_name=SHEETS["2021Q3"]), ROW_2021
+        ),
     }
     fix_zip(data)
     make_941x_dir()

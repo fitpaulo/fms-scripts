@@ -1,6 +1,7 @@
 import yaml
-import src.pdf_ops as pdf_ops
 from src.excel_ops import excel_helper
+from src.pdf_ops import pdf_helper
+
 
 with open("conf/config.yaml", "r") as file:
     conf = yaml.safe_load(file)
@@ -32,18 +33,17 @@ OUTPUT_PATH = f"{BASE_PATH}\\{COMPANY_PATH}\\941x"
 
 
 if __name__ == "__main__":
-    pdf_reader = pdf_ops.create_pdf_reader(F941X_PATH)
-    pdf_writer = pdf_ops.create_pdf_writer()
     excel = excel_helper(WB_PATH, SHEETS, ROUND_DELTA, ROW_2020, ROW_2021)
     excel.load_data()
-    excel.fix_zip()
-    pdf_ops.make_941x_dir()
-    pdf_ops.write_f8821(excel.data["company"], F8821_PATH, OUTPUT_PATH, SKIP_8821)
-    for i in range(0, 6):
-        pdf_writer.add_page(pdf_reader.pages[i])
+    pdf = pdf_helper(
+        F941X_PATH,
+        F8821_PATH,
+        OUTPUT_PATH,
+        QUARTER_FIELDS,
+        PDF_DICT,
+        SKIP_8821,
+        excel.data,
+    )
     for year, quarter in YEAR_QUARTER:
-        pdf_ops.write_pdf_data(pdf_writer, excel.data, year, quarter, PDF_DICT)
-        pdf_ops.update_quater_check_box(pdf_writer.pages[0], quarter, QUARTER_FIELDS)
-        filename = f"{excel.data['company']['name']} f941x {year} Q{quarter}.pdf"
-        output_file = f"{OUTPUT_PATH}\\{filename}"
-        pdf_ops.write(pdf_writer, output_file)
+        pdf.make_pdf(year, quarter)
+

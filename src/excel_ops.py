@@ -50,9 +50,11 @@ class excel_helper:
             "phone": df.iloc[0, 4],
             "city": df.iloc[0, 5],
             "state": df.iloc[0, 6],
-            "zip": (lambda: int(df.iloc[0, 7]), lambda: df.iloc[0, 7])[
-                type(df.iloc[0, 7]) is str
-            ](),  # calling int here gets rid of the decimal .0
+            "zip": self.fix_zip(
+                (lambda: int(df.iloc[0, 7]), lambda: df.iloc[0, 7])[
+                    type(df.iloc[0, 7]) is str
+                ]()
+            ),  # calling int here gets rid of the decimal .0
         }
 
     def extract_tax_data(self, df: pd.DataFrame, row: int) -> dict:
@@ -156,8 +158,7 @@ class excel_helper:
         }
 
     def fix_zip(self):
-        """Fix zip code if it was an integer starting with 0, we want that 0 to be there
-        """
+        """Fix zip code if it was an integer starting with 0, we want that 0 to be there"""
         if self.data["company"]["zip"] is int:
             if self.data["company"]["zip"] < 10000:
                 self.data["company"]["zip"] = f"0{self.data['company']['zip']}"

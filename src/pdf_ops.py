@@ -15,7 +15,9 @@ def print_non_empty_fields(pdf: PyPDF2.PdfFileReader):
             print(f"key:{k}   value:{v}")
 
 
-def update_quater_check_box(page: PyPDF2._page.PageObject, value: int, quarter_fields: dict):
+def update_quater_check_box(
+    page: PyPDF2._page.PageObject, value: int, quarter_fields: dict
+):
     for i in range(0, len(page["/Annots"])):
         annot = page["/Annots"][i].getObject()
         for k, field in quarter_fields.items():
@@ -52,7 +54,9 @@ def extract_dollars_and_cents(num: np.float63) -> list:
     return [dollars, cents]
 
 
-def write_pdf_data(pdf: PyPDF2.PdfFileWriter, data: dict, year: int, quarter: int, pdf_dict: dict):
+def write_pdf_data(
+    pdf: PyPDF2.PdfFileWriter, data: dict, year: int, quarter: int, pdf_dict: dict
+):
     d = datetime.date.today()
     dollars_18a, cents_18a = extract_dollars_and_cents(
         data[f"{year}_q{quarter}"]["18a"]

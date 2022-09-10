@@ -2,6 +2,7 @@ import yaml
 from src.excel_ops import excel_helper
 from src.pdf_ops import pdf_helper
 
+
 with open("conf/config.yaml", "r") as file:
     conf = yaml.safe_load(file)
 with open("conf/f941x.yaml", "r") as file:
@@ -45,3 +46,4 @@ if __name__ == "__main__":
     )
     for year, quarter in YEAR_QUARTER:
         pdf.make_pdf(year, quarter)
+

@@ -46,4 +46,3 @@ if __name__ == "__main__":
     )
     for year, quarter in YEAR_QUARTER:
         pdf.make_pdf(year, quarter)
-

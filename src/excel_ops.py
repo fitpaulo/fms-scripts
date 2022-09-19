@@ -50,11 +50,9 @@ class excel_helper:
             "phone": df.iloc[0, 4],
             "city": df.iloc[0, 5],
             "state": df.iloc[0, 6],
-            "zip": self.fix_zip(
-                (lambda: int(df.iloc[0, 7]), lambda: df.iloc[0, 7])[
-                    type(df.iloc[0, 7]) is str
-                ]()
-            ),  # calling int here gets rid of the decimal .0
+            "zip": (lambda: int(df.iloc[0, 7]), lambda: df.iloc[0, 7])[
+                type(df.iloc[0, 7]) is str
+            ](),  # calling int here gets rid of the decimal .0
         }
 
     def extract_tax_data(self, df: pd.DataFrame, row: int) -> dict:
@@ -68,10 +66,10 @@ class excel_helper:
             dict: The data from the sheet in dict format
         """
         return {
-            "18a": self.excel_round(df.iloc[row, self.col], self.round_delta),
-            "26a": self.excel_round(df.iloc[row + 2, self.col], self.round_delta),
-            "27": self.excel_round(df.iloc[row + 4, self.col], self.round_delta),
-            "30": self.excel_round(df.iloc[row + 6, self.col], self.round_delta),
+            "18a": self.excel_round(df.iloc[row, self.col]),
+            "26a": self.excel_round(df.iloc[row + 2, self.col]),
+            "27": self.excel_round(df.iloc[row + 4, self.col]),
+            "30": self.excel_round(df.iloc[row + 6, self.col]),
         }
 
     def excel_round(self, num: np.float64) -> float:
@@ -90,7 +88,7 @@ class excel_helper:
             return round(num + self.round_delta, 2)
         return round(num, 2)
 
-    def extract_dollars_and_cents(num: np.float63) -> list:
+    def extract_dollars_and_cents(num: np.float64) -> list:
         """Separate the decimal and the whole number
 
         Args:
@@ -123,39 +121,34 @@ class excel_helper:
         """
         self.data = {
             "company": self.extract_company_data(
-                self.wb.parse(sheet_name=self.sheets["input"])
+                self.wb.parse(sheet_name=self.sheet_names["input"])
             ),
             "2020_q2": self.extract_tax_data(
-                self.wb.parse(sheet_name=self.sheets["2020Q2"]),
+                self.wb.parse(sheet_name=self.sheet_names["2020Q2"]),
                 self.row_2020,
-                self.round_delta,
             ),
             "2020_q3": self.extract_tax_data(
-                self.wb.parse(sheet_name=self.sheets["2020Q3"]),
+                self.wb.parse(sheet_name=self.sheet_names["2020Q3"]),
                 self.row_2020,
-                self.round_delta,
             ),
             "2020_q4": self.extract_tax_data(
-                self.wb.parse(sheet_name=self.sheets["2020Q4"]),
+                self.wb.parse(sheet_name=self.sheet_names["2020Q4"]),
                 self.row_2020,
-                self.round_delta,
             ),
             "2021_q1": self.extract_tax_data(
-                self.wb.parse(sheet_name=self.sheets["2021Q1"]),
+                self.wb.parse(sheet_name=self.sheet_names["2021Q1"]),
                 self.row_2021,
-                self.round_delta,
             ),
             "2021_q2": self.extract_tax_data(
-                self.wb.parse(sheet_name=self.sheets["2021Q2"]),
+                self.wb.parse(sheet_name=self.sheet_names["2021Q2"]),
                 self.row_2021,
-                self.round_delta,
             ),
             "2021_q3": self.extract_tax_data(
-                self.wb.parse(sheet_name=self.sheets["2021Q3"]),
+                self.wb.parse(sheet_name=self.sheet_names["2021Q3"]),
                 self.row_2021,
-                self.round_delta,
             ),
         }
+        self.fix_zip()
 
     def fix_zip(self):
         """Fix zip code if it was an integer starting with 0, we want that 0 to be there"""

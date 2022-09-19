@@ -33,7 +33,7 @@ class pdf_helper:
     def load_writer(self):
         """Load the writer and populate it with the pages read"""
         self.writer = PyPDF2.PdfFileWriter()
-        for page in self.reader:
+        for page in self.reader.pages:
             self.writer.addPage(page)
 
     def print_non_empy_fields(self):
@@ -131,8 +131,8 @@ class pdf_helper:
                 self.pdf_dict["tax"]["18a_cents"][2]: cents_18a,
             },
         )
-        self.pdf.update_page_form_field_values(
-            self.pdf.pages[2],
+        self.writer.update_page_form_field_values(
+            self.writer.pages[2],
             {
                 self.pdf_dict["p3"]["ein"]: self.data["company"]["ein"],
                 self.pdf_dict["p3"]["name"]: self.data["company"]["name"],
@@ -173,42 +173,41 @@ class pdf_helper:
             },
         )
 
-    def extract_dollars_and_cents(self, num: np.float63) -> list:
+    def extract_dollars_and_cents(self, num: np.float64) -> list:
         if int(np.round(num)) == -1:
             return ["", ""]
         dollars = int(np.floor(num))
         # dollars = add_commas_to_dollars(dollars)
-        cents = str(num)[-3:]  # don't forget the colon
-        if cents[-1] == ".":
-            cents = f"{cents[0]}0"
+        cents = str(int(num * 100))[-2:]  # don't forget the colon
         return [dollars, cents]
 
-    def write_pdf_file(self):
+    def write_pdf_file(self, year: int, quarter: int):
         filename = (
-            f"{self.data['company']['name']} f941x {self.year} Q{self.quarter}.pdf"
+            f"{self.data['company']['name']} f941x {year} Q{quarter}.pdf"
         )
         output_file = f"{self.write_path}\\{filename}"
         self.writer.write(output_file)
 
     def write_f8821(self):
-        if self.skip:
+        if self.skip_8821:
             return
+        data = self.data["company"]
         pdf = PyPDF2.PdfFileReader(self.f8821_path)
         writer = PyPDF2.PdfFileWriter()
         for page in pdf.pages:
             writer.addPage(page)
-        address = f"{self.data['name']}{NEWLINE}"
-        address += f"{self.data['address']}{NEWLINE}"
-        address += f"{self.data['city']}, {self.data['state']} {self.data['zip']}"
+        address = f"{data['name']}{NEWLINE}"
+        address += f"{data['address']}{NEWLINE}"
+        address += f"{data['city']}, {data['state']} {data['zip']}"
         writer.update_page_form_field_values(
             writer.pages[0],
             {
                 "f1_6[0]": address,
-                "f1_7[0]": self.data["ein"],
-                "f1_8[0]": self.data["phone"],
+                "f1_7[0]": data["ein"],
+                "f1_8[0]": data["phone"],
             },
         )
-        filename = f"{self.data['name']} f8821.pdf"
+        filename = f"{data['name']} f8821.pdf"
         output_file = f"{self.write_path}\\{filename}"
         writer.write(output_file)
 
@@ -221,4 +220,4 @@ class pdf_helper:
     def make_pdf(self, year, quarter):
         self.update_pdf_data(year, quarter)
         self.update_quater_check_box(quarter)
-        self.write_pdf_file()
+        self.write_pdf_file(year, quarter)

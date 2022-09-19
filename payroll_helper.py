@@ -90,9 +90,7 @@ class PayrollHelper:
     ) -> bool:
         success = True
         try:
-            self.output_data[self.employees[idx]] = df[
-                col_header_key
-            ].tolist()
+            self.output_data[self.employees[idx]] = df[col_header_key].tolist()
         except KeyError:  # This header is not in the current df
             success = False
         except IndexError:

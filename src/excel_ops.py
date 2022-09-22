@@ -84,7 +84,7 @@ class excel_helper:
             _type_: _description_
         """
         num = np.round(num, 3)
-        if np.floor(num * 1000) % 5 == 0:
+        if int(num * 1000) % 5 == 0:
             return round(num + self.round_delta, 2)
         return round(num, 2)
 
@@ -152,6 +152,9 @@ class excel_helper:
 
     def fix_zip(self):
         """Fix zip code if it was an integer starting with 0, we want that 0 to be there"""
-        if self.data["company"]["zip"] is int:
-            if self.data["company"]["zip"] < 10000:
-                self.data["company"]["zip"] = f"0{self.data['company']['zip']}"
+        try:
+            zip = int(self.data["company"]["zip"])
+            if zip < 10000:
+                self.data["company"]["zip"] = f"0{zip}"
+        except ValueError:  # Zip has a - in it
+            pass  # Nothing to fix

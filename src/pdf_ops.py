@@ -174,7 +174,7 @@ class pdf_helper:
         )
 
     def extract_dollars_and_cents(self, num: np.float64) -> list:
-        if int(np.round(num)) == -1:
+        if int(np.round(num)) == -1 or int(np.round(num)) == 0:
             return ["", ""]
         dollars = int(np.floor(num))
         # dollars = add_commas_to_dollars(dollars)

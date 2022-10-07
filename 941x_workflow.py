@@ -1,4 +1,5 @@
 import yaml
+import os
 from src.excel_ops import excel_helper
 from src.pdf_ops import pdf_helper
 
@@ -9,30 +10,60 @@ with open("conf/f941x.yaml", "r") as file:
     pdf_conf = yaml.safe_load(file)
 
 # From yaml
-COMPANY_PATH = conf["path"]
-COPANY_TYPE = conf["type"]
-WS_NAME = conf["ws"]
+COMPANY_TYPE = conf["type"]
 SKIP_8821 = conf["skip"]
 YEAR_QUARTER = conf["year_quarter"]
 DROPBOX_PATH = conf["dropbox_path"]
 PDF_DICT = pdf_conf["pdf_dict"]
-PAYROLL_DIR = conf["payroll_dir"]
 QUARTER_FIELDS = pdf_conf["quarter_fields"]
 SHEETS = conf["excel_sheet_names"]
 ROUND_DELTA = conf["round_delta"]
 ROW_2020 = conf["row_2020"]
 ROW_2021 = conf["row_2021"]
 
+
+def build_company_path():
+    company_path = os.path.join(BASE_PATH, conf["company"][0], conf["company"])
+    if os.path.exists(company_path):
+        contents = os.listdir(company_path)
+        if len(contents) == 1:
+            company_path = os.path.join(company_path, contents[0])
+        return company_path
+    else:
+        raise RuntimeError(f"Company path does not exist: {company_path}")
+
+
+def build_wb_path():
+    for dir in conf["payroll_dirs"]:
+        if os.path.exists(os.path.join(COMPANY_PATH, dir)):
+            wb_path = os.path.join(COMPANY_PATH, dir)
+            contents = os.listdir(wb_path)
+            for file in contents:
+                if "worksheet" in file.lower():
+                    return os.path.join(wb_path, file)
+            raise RuntimeError(f"Cannot find the WS in: {wb_path}")
+    raise RuntimeError(f"Cannot find the 'Payroll and Worksheet' dir in: {COMPANY_PATH}")
+
+
 # Dynamic vars
-BASE_PATH = f"{DROPBOX_PATH}\\COMPANIES {COPANY_TYPE}"
-PDF_PATH = f"{BASE_PATH}\\PAT {COPANY_TYPE} ERTC"
-F941X_PATH = f"{PDF_PATH}\\f941x 8-9-22.pdf"
-F8821_PATH = f"{PDF_PATH}\\f8821 8-9-22.pdf"
-WB_PATH = f"{BASE_PATH}\\{COMPANY_PATH}\\{PAYROLL_DIR}\\{WS_NAME}.xlsx"
-OUTPUT_PATH = f"{BASE_PATH}\\{COMPANY_PATH}\\941x"
+BASE_PATH = os.path.join(DROPBOX_PATH, f"COMPANIES {COMPANY_TYPE}")
+PDF_PATH = os.path.join(BASE_PATH, f"PAT {COMPANY_TYPE} ERTC")
+F941X_PATH = os.path.join(PDF_PATH, conf["f941x_file_name"])
+F8821_PATH = os.path.join(PDF_PATH, conf["f8821_file_name"])
+COMPANY_PATH = build_company_path()
+WB_PATH = build_wb_path()
+OUTPUT_PATH = os.path.join(COMPANY_PATH, "941x")
+
+
+def validate_path(path):
+    if os.path.exists(path):
+        return
+    raise RuntimeError(f"Path does not exist: {path}")
 
 
 if __name__ == "__main__":
+    validate_path(F8821_PATH)
+    validate_path(F941X_PATH)
     excel = excel_helper(WB_PATH, SHEETS, ROUND_DELTA, ROW_2020, ROW_2021)
     excel.load_data()
     pdf = pdf_helper(

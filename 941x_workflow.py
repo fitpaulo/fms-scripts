@@ -24,8 +24,13 @@ ROW_2021 = conf["row_2021"]
 
 
 def build_company_path():
-    company_path = os.path.join(BASE_PATH, conf["company"][0], conf["company"])
+    company_path = os.path.join(BASE_PATH, conf["company"][0])
     if os.path.exists(company_path):
+        contents = os.listdir(company_path)
+        for company in contents:
+            if conf["company"] in company:
+                company_path = os.path.join(company_path, company)
+                break
         contents = os.listdir(company_path)
         if len(contents) == 1:
             company_path = os.path.join(company_path, contents[0])

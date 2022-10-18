@@ -182,9 +182,7 @@ class pdf_helper:
         return [dollars, cents]
 
     def write_pdf_file(self, year: int, quarter: int):
-        filename = (
-            f"{self.data['company']['name']} f941x {year} Q{quarter}.pdf"
-        )
+        filename = f"{self.data['company']['name']} f941x {year} Q{quarter}.pdf"
         output_file = f"{self.write_path}\\{filename}"
         self.writer.write(output_file)
 

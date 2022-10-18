@@ -1,8 +1,9 @@
-import yaml
 import os
+
+import yaml
+
 from src.excel_ops import excel_helper
 from src.pdf_ops import pdf_helper
-
 
 with open("conf/config.yaml", "r") as file:
     conf = yaml.safe_load(file)
@@ -42,7 +43,9 @@ def build_wb_path():
                 if "worksheet" in file.lower():
                     return os.path.join(wb_path, file)
             raise RuntimeError(f"Cannot find the WS in: {wb_path}")
-    raise RuntimeError(f"Cannot find the 'Payroll and Worksheet' dir in: {COMPANY_PATH}")
+    raise RuntimeError(
+        f"Cannot find the 'Payroll and Worksheet' dir in: {COMPANY_PATH}"
+    )
 
 
 # Dynamic vars

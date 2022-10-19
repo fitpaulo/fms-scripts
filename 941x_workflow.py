@@ -1,4 +1,6 @@
 import os
+import shutil
+import sys
 
 import yaml
 
@@ -21,6 +23,10 @@ SHEETS = conf["excel_sheet_names"]
 ROUND_DELTA = conf["round_delta"]
 ROW_2020 = conf["row_2020"]
 ROW_2021 = conf["row_2021"]
+BASE_PATH = os.path.join(DROPBOX_PATH, f"COMPANIES {COMPANY_TYPE}")
+PDF_PATH = os.path.join(BASE_PATH, f"PAT {COMPANY_TYPE} ERTC")
+F941X_PATH = os.path.join(PDF_PATH, conf["f941x_file_name"])
+F8821_PATH = os.path.join(PDF_PATH, conf["f8821_file_name"])
 
 
 def build_company_path():
@@ -39,7 +45,34 @@ def build_company_path():
         raise RuntimeError(f"Company path does not exist: {company_path}")
 
 
+def copy_worksheet(dest_dir: str):
+    for item in os.listdir(PDF_PATH):
+        if conf["base_ws_name"] in item:
+            shutil.copy(
+                os.path.join(PDF_PATH, item),
+                dest_dir,
+            )
+            new_name = f"{conf['company']} ERTC Worksheet.xlsx"
+            os.rename(
+                os.path.join(dest_dir, item),
+                os.path.join(dest_dir, new_name)
+            )
+
+
+def set_up_worksheet():
+    new_dir_name = os.path.join(COMPANY_PATH, "Payroll And Worksheet")
+    os.rename(
+        os.path.join(COMPANY_PATH, "Payroll"),
+        new_dir_name,
+    )
+    copy_worksheet(new_dir_name)
+
+
 def build_wb_path():
+    if os.path.exists(os.path.join(COMPANY_PATH, "Payroll")):
+        # Then set up the file and exit
+        set_up_worksheet()
+        sys.exit(0)
     for dir in conf["payroll_dirs"]:
         if os.path.exists(os.path.join(COMPANY_PATH, dir)):
             wb_path = os.path.join(COMPANY_PATH, dir)
@@ -53,21 +86,16 @@ def build_wb_path():
     )
 
 
-# Dynamic vars
-BASE_PATH = os.path.join(DROPBOX_PATH, f"COMPANIES {COMPANY_TYPE}")
-PDF_PATH = os.path.join(BASE_PATH, f"PAT {COMPANY_TYPE} ERTC")
-F941X_PATH = os.path.join(PDF_PATH, conf["f941x_file_name"])
-F8821_PATH = os.path.join(PDF_PATH, conf["f8821_file_name"])
+def validate_path(path):
+    if os.path.exists(path):
+        return True
+    raise RuntimeError(f"Path does not exist: {path}")
+
+
+# These var requie some functions to build
 COMPANY_PATH = build_company_path()
 WB_PATH = build_wb_path()
 OUTPUT_PATH = os.path.join(COMPANY_PATH, "941x")
-
-
-def validate_path(path):
-    if os.path.exists(path):
-        return
-    raise RuntimeError(f"Path does not exist: {path}")
-
 
 if __name__ == "__main__":
     validate_path(F8821_PATH)

@@ -1,6 +1,9 @@
 from pprint import pp
+import os
 import pandas as pd
+import numpy as np
 import yaml
+import re
 
 
 class PayrollHelper:
@@ -25,6 +28,7 @@ class PayrollHelper:
 
     def load_wb(self):
         self.wb = pd.ExcelFile(f"{self.path}\\{self.filename}")
+        self.df = self.wb.parse()
 
     def parse_output_index(self):
         df = self.parse_first_df()
@@ -128,6 +132,24 @@ class PayrollHelper:
             data.append(0)
 
 
+def extract_gross(row, current_gross):
+    gross_col = 3
+    return float(row[gross_col])
+
+
+def extract_ss(row):
+    text_col = 4
+    num_col = 5
+    try:
+        if row[text_col].lower() == "fed socsec":
+            return float(row[num_col])
+        elif row[text_col].lower() == "fed socsec - reclac":
+            return float(row[num_col])
+        return 0
+    except AttributeError:
+        return 0
+
+
 if __name__ == "__main__":
     with open("conf/payroll.yaml") as file:
         conf = yaml.safe_load(file)
@@ -139,7 +161,47 @@ if __name__ == "__main__":
             index_col=conf["index_col"],
             header=conf["header"],
         )
+        names = []
+        gross = []
+        ss = []
         payroll_helper.load_data()
-        # pp(payroll_helper.output_data)
-        pp(list(payroll_helper.output_data))
-        payroll_helper.create_output_df()
+        # pp(payroll_helper.df.to_string())
+        cols = payroll_helper.df.columns.tolist()
+        find_ss = False
+        find_ss_recalc = False
+        find_gross = False
+        current_gross = 0
+        current_ss = 0
+        name_row = 0
+        for _, i in payroll_helper.df.iterrows():
+            if find_ss:
+                result = extract_ss(i)
+                if find_ss_recalc:
+                    if result > 0:
+                        current_ss += result
+                    else:
+                        find_ss = False
+                        find_ss_recalc = False
+                        ss.append(current_ss)
+                else:
+                    if result > 0:
+                        current_ss = result
+                        find_ss_recalc = True
+            if find_gross:
+                result = extract_gross(i, current_gross)
+                if result is np.nan:
+                    find_gross = False
+                    gross.append(current_gross)
+                else:
+                    current_gross = result
+            if type(i[name_row]) is str:
+                if "Employee: " in i[name_row]:
+                    if find_ss:  # 1099 emp didn't have
+                        ss.append(0)
+                    names.append(re.sub("Employee: ", "", i[name_row]))
+                    find_ss = True
+                    find_gross = True
+        data = {"Name": names, "Gross": gross, "SocSec": ss}
+        df = pd.DataFrame(data)
+        pp(df.to_string())
+        df.to_excel(os.path.join(conf["path"], conf["outfile"]))

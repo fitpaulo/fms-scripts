@@ -42,7 +42,7 @@ def get_company_paths(company: str):
         for item in os.listdir(company_path):
             if company in item:
                 company_path = update_company_path(os.path.join(company_path, item))
-                res.append(os.path.join(base_path, f"PAT {COMPANY_TYPE} ERTC"))
+                res.append(os.path.join(base_path, f"PAT {company_type} ERTC"))
                 res.append(company_path)
     if len(res) == 0:
         raise RuntimeError(f"Unable to find ${company} under TSP or LA")

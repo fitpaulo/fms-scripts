@@ -23,50 +23,57 @@ SHEETS = conf["excel_sheet_names"]
 ROUND_DELTA = conf["round_delta"]
 ROW_2020 = conf["row_2020"]
 ROW_2021 = conf["row_2021"]
-BASE_PATH = os.path.join(DROPBOX_PATH, f"COMPANIES {COMPANY_TYPE}")
-PDF_PATH = os.path.join(BASE_PATH, f"PAT {COMPANY_TYPE} ERTC")
-F941X_PATH = os.path.join(PDF_PATH, conf["f941x_file_name"])
-F8821_PATH = os.path.join(PDF_PATH, conf["f8821_file_name"])
 
 
-def build_company_path(company: str):
-    if company[0] in "1234567890":
-        company_path = os.path.join(BASE_PATH, "1234567890")
-    else:
-        company_path = os.path.join(BASE_PATH, company[0])
-    for item in os.listdir(company_path):
-        if company.lower() in item.lower():
-            company_path = os.path.join(company_path, company)
-            break
-    if len(os.listdir(company_path)) == 1:
-        company_path = os.path.join(company_path, os.listdir(company_path)[0])
+def update_company_path(company_path: str):
+    contents = os.listdir(company_path)
+    if len(contents) == 1:
+        return os.path.join(company_path, contents[0])
     return company_path
 
 
-def copy_worksheet(dest_dir: str):
-    for item in os.listdir(PDF_PATH):
+def get_company_paths(company: str):
+    res = []
+    for company_type in conf["types"]:
+        base_path = os.path.join(DROPBOX_PATH, f"COMPANIES {company_type}")
+        if company[0] in "1234567890":
+            company_path = os.path.join(base_path, "1234567890")
+        else:
+            company_path = os.path.join(base_path, company[0])
+        for item in os.listdir(company_path):
+            if company in item:
+                company_path = update_company_path(os.path.join(company_path, item))
+                res.append(os.path.join(base_path, f"PAT {COMPANY_TYPE} ERTC"))
+                res.append(company_path)
+    if len(res) == 0:
+        raise RuntimeError(f"Unable to find ${company} under TSP or LA")
+    return res
+
+
+def copy_worksheet(dest_dir: str, pdf_path: str):
+    for item in os.listdir(pdf_path):
         if conf["base_ws_name"] in item:
             shutil.copy(
-                os.path.join(PDF_PATH, item),
+                os.path.join(pdf_path, item),
                 dest_dir,
             )
             new_name = f"{conf['company']} ERTC Worksheet.xlsx"
             os.rename(os.path.join(dest_dir, item), os.path.join(dest_dir, new_name))
 
 
-def set_up_worksheet(company_path: str):
+def set_up_worksheet(company_path: str, pdf_path: str):
     new_dir_name = os.path.join(company_path, "Payroll And Worksheet")
     os.rename(
         os.path.join(company_path, "Payroll"),
         new_dir_name,
     )
-    copy_worksheet(new_dir_name)
+    copy_worksheet(new_dir_name, pdf_path)
 
 
-def build_wb_path(company_path: str):
+def build_wb_path(company_path: str, pdf_path: str):
     if os.path.exists(os.path.join(company_path, "Payroll")):
         # Then set up the file and exit
-        set_up_worksheet(company_path)
+        set_up_worksheet(company_path, pdf_path)
         sys.exit(0)
     for item in os.listdir(company_path):
         if item.lower() in conf["payroll_dirs"]:
@@ -88,20 +95,20 @@ def validate_path(path):
 
 
 if __name__ == "__main__":
-    validate_path(F8821_PATH)
-    validate_path(F941X_PATH)
     errors = []
     error_companies = []
     for company in conf["companies"]:
         try:
-            company_path = build_company_path(company)
-            wb_path = build_wb_path(company_path)
+            pdf_path, company_path = get_company_paths(company)
+            f941x_path = os.path.join(pdf_path, conf["f941x_file_name"])
+            f8821_path = os.path.join(pdf_path, conf["f8821_file_name"])
             output_path = os.path.join(company_path, "941x")
+            wb_path = build_wb_path(company_path, pdf_path)
             excel = excel_helper(wb_path, SHEETS, ROUND_DELTA, ROW_2020, ROW_2021)
             excel.load_data()
             pdf = pdf_helper(
-                F941X_PATH,
-                F8821_PATH,
+                f941x_path,
+                f8821_path,
                 output_path,
                 QUARTER_FIELDS,
                 PDF_DICT,

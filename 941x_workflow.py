@@ -29,20 +29,18 @@ F941X_PATH = os.path.join(PDF_PATH, conf["f941x_file_name"])
 F8821_PATH = os.path.join(PDF_PATH, conf["f8821_file_name"])
 
 
-def build_company_path():
-    company_path = os.path.join(BASE_PATH, conf["company"][0])
-    if os.path.exists(company_path):
-        contents = os.listdir(company_path)
-        for company in contents:
-            if conf["company"] in company:
-                company_path = os.path.join(company_path, company)
-                break
-        contents = os.listdir(company_path)
-        if len(contents) == 1:
-            company_path = os.path.join(company_path, contents[0])
-        return company_path
+def build_company_path(company: str):
+    if company[0] in "1234567890":
+        company_path = os.path.join(BASE_PATH, "1234567890")
     else:
-        raise RuntimeError(f"Company path does not exist: {company_path}")
+        company_path = os.path.join(BASE_PATH, company[0])
+    for item in os.listdir(company_path):
+        if company.lower() in item.lower():
+            company_path = os.path.join(company_path, company)
+            break
+    if len(os.listdir(company_path)) == 1:
+        company_path = os.path.join(company_path, os.listdir(company_path)[0])
+    return company_path
 
 
 def copy_worksheet(dest_dir: str):
@@ -53,36 +51,33 @@ def copy_worksheet(dest_dir: str):
                 dest_dir,
             )
             new_name = f"{conf['company']} ERTC Worksheet.xlsx"
-            os.rename(
-                os.path.join(dest_dir, item),
-                os.path.join(dest_dir, new_name)
-            )
+            os.rename(os.path.join(dest_dir, item), os.path.join(dest_dir, new_name))
 
 
-def set_up_worksheet():
-    new_dir_name = os.path.join(COMPANY_PATH, "Payroll And Worksheet")
+def set_up_worksheet(company_path: str):
+    new_dir_name = os.path.join(company_path, "Payroll And Worksheet")
     os.rename(
-        os.path.join(COMPANY_PATH, "Payroll"),
+        os.path.join(company_path, "Payroll"),
         new_dir_name,
     )
     copy_worksheet(new_dir_name)
 
 
-def build_wb_path():
-    if os.path.exists(os.path.join(COMPANY_PATH, "Payroll")):
+def build_wb_path(company_path: str):
+    if os.path.exists(os.path.join(company_path, "Payroll")):
         # Then set up the file and exit
-        set_up_worksheet()
+        set_up_worksheet(company_path)
         sys.exit(0)
-    for dir in conf["payroll_dirs"]:
-        if os.path.exists(os.path.join(COMPANY_PATH, dir)):
-            wb_path = os.path.join(COMPANY_PATH, dir)
+    for item in os.listdir(company_path):
+        if item.lower() in conf["payroll_dirs"]:
+            wb_path = os.path.join(company_path, item)
             contents = os.listdir(wb_path)
             for file in contents:
                 if "worksheet" in file.lower():
                     return os.path.join(wb_path, file)
             raise RuntimeError(f"Cannot find the WS in: {wb_path}")
     raise RuntimeError(
-        f"Cannot find the 'Payroll and Worksheet' dir in: {COMPANY_PATH}"
+        f"Cannot find the 'Payroll and Worksheet' dir in: {company_path}"
     )
 
 
@@ -92,24 +87,32 @@ def validate_path(path):
     raise RuntimeError(f"Path does not exist: {path}")
 
 
-# These var requie some functions to build
-COMPANY_PATH = build_company_path()
-WB_PATH = build_wb_path()
-OUTPUT_PATH = os.path.join(COMPANY_PATH, "941x")
-
 if __name__ == "__main__":
     validate_path(F8821_PATH)
     validate_path(F941X_PATH)
-    excel = excel_helper(WB_PATH, SHEETS, ROUND_DELTA, ROW_2020, ROW_2021)
-    excel.load_data()
-    pdf = pdf_helper(
-        F941X_PATH,
-        F8821_PATH,
-        OUTPUT_PATH,
-        QUARTER_FIELDS,
-        PDF_DICT,
-        SKIP_8821,
-        excel.data,
-    )
-    for year, quarter in YEAR_QUARTER:
-        pdf.make_pdf(year, quarter)
+    errors = []
+    error_companies = []
+    for company in conf["companies"]:
+        try:
+            company_path = build_company_path(company)
+            wb_path = build_wb_path(company_path)
+            output_path = os.path.join(company_path, "941x")
+            excel = excel_helper(wb_path, SHEETS, ROUND_DELTA, ROW_2020, ROW_2021)
+            excel.load_data()
+            pdf = pdf_helper(
+                F941X_PATH,
+                F8821_PATH,
+                output_path,
+                QUARTER_FIELDS,
+                PDF_DICT,
+                SKIP_8821,
+                excel.data,
+            )
+            for year, quarter in YEAR_QUARTER:
+                pdf.make_pdf(year, quarter)
+        except Exception as e:
+            errors.append(e)
+            error_companies.append(company)
+    if errors:
+        print(errors)
+        print(error_companies)

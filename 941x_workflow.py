@@ -13,7 +13,6 @@ with open("conf/f941x.yaml", "r") as file:
     pdf_conf = yaml.safe_load(file)
 
 # From yaml
-COMPANY_TYPE = conf["type"]
 SKIP_8821 = conf["skip"]
 YEAR_QUARTER = conf["year_quarter"]
 DROPBOX_PATH = conf["dropbox_path"]

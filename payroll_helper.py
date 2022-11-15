@@ -1,5 +1,6 @@
 from pprint import pp
 import os
+import sys
 import pandas as pd
 import numpy as np
 import yaml
@@ -132,16 +133,28 @@ class PayrollHelper:
             data.append(0)
 
 
-def extract_gross(row, current_gross):
-    gross_col = 3
+def extract_gross(row):
+    gross_col = 5
+    print(row[gross_col])
     return float(row[gross_col])
 
 
-def extract_ss(row):
-    text_col = 4
-    num_col = 5
+def extract_gross_with_title(row):
+    title_col = 0
+    gross_col = 4
     try:
-        if row[text_col].lower() == "fed socsec":
+        if "totals" in row[title_col].lower():
+            return float(row[gross_col])
+    except AttributeError:
+        pass
+    return 0
+
+
+def extract_ss(row):
+    text_col = 7
+    num_col = 8
+    try:
+        if row[text_col].lower() == "fica-ss":
             return float(row[num_col])
         elif row[text_col].lower() == "fed socsec - reclac":
             return float(row[num_col])
@@ -172,36 +185,49 @@ if __name__ == "__main__":
         find_gross = False
         current_gross = 0
         current_ss = 0
-        name_row = 0
+        name_row = 3
         for _, i in payroll_helper.df.iterrows():
             if find_ss:
                 result = extract_ss(i)
-                if find_ss_recalc:
-                    if result > 0:
-                        current_ss += result
-                    else:
-                        find_ss = False
-                        find_ss_recalc = False
-                        ss.append(current_ss)
-                else:
-                    if result > 0:
-                        current_ss = result
-                        find_ss_recalc = True
+                if result > 0:
+                    ss.append(result)
+                    find_ss = False
+            #     if find_ss_recalc:
+            #         if result > 0:
+            #             current_ss += result
+            #         else:
+            #             find_ss = False
+            #             find_ss_recalc = False
+            #             ss.append(current_ss)
+            #     else:
+            #         if result > 0:
+            #             current_ss = result
+            #             find_ss_recalc = True
             if find_gross:
-                result = extract_gross(i, current_gross)
-                if result is np.nan:
+                result = extract_gross_with_title(i)
+                if result > 0:
+                    gross.append(result)
                     find_gross = False
-                    gross.append(current_gross)
-                else:
-                    current_gross = result
+                # result = extract_gross(i)
+                # if result is np.nan:
+                    # find_gross = False
+                    # gross.append(current_gross)
+                # else:
+                    # current_gross = result
             if type(i[name_row]) is str:
-                if "Employee: " in i[name_row]:
-                    if find_ss:  # 1099 emp didn't have
-                        ss.append(0)
-                    names.append(re.sub("Employee: ", "", i[name_row]))
+                # if re.search(r"^\w+, \w+", i[name_row]):
+                if "," in i[name_row]:
+                    if find_ss and find_gross:
+                        # employee had 0 income, remove them
+                        names.pop()
+                    # if find_ss:  # 1099 emp didn't have
+                    #     ss.append(0)
+                    names.append(i[name_row])
                     find_ss = True
                     find_gross = True
         data = {"Name": names, "Gross": gross, "SocSec": ss}
+        # pp(data)
+        # print(len(data["Gross"]), len(data["Name"]), len(data["SocSec"]))
         df = pd.DataFrame(data)
-        pp(df.to_string())
+        # pp(df.to_string())
         df.to_excel(os.path.join(conf["path"], conf["outfile"]))

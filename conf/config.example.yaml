@@ -1,9 +1,13 @@
-type: LA
-company: Company Name
+types:
+  - LA
+  - TSP
+companies:
+  - 
 skip: False
+# skip: True
 payroll_dirs:
-  - "Payroll & Worksheet"
-  - "Payroll And Worksheet"
+  - "payroll & worksheet"
+  - "payroll and worksheet"
 year_quarter: # comment out reports to skip
   - [2020, 2]
   - [2020, 3]
@@ -11,7 +15,7 @@ year_quarter: # comment out reports to skip
   - [2021, 1]
   - [2021, 2]
   - [2021, 3]
-dropbox_path: path/to/dropbox
+dropbox_path: 
 excel_sheet_names:
   input: "Data Input"
   2020Q2: "2020 Q2 941 Calc"
@@ -20,7 +24,7 @@ excel_sheet_names:
   2021Q1: "2021 Q1 941 Calc"
   2021Q2: "2021 Q2 941 Calc"
   2021Q3: "2021 Q3 941 Calc"
-round_delta: 0.003
+round_delta: 0.001
 row_2020: 46
 row_2021: 47
 f941x_file_name: "f941x 8-9-22.pdf"
